@@ -69,7 +69,7 @@ void empilha(obj c, lista l) {
 
 // devolve o conteudo com a chave <chave> e o mantem na lista
 // [a funcao <f_chave(c)> deve devolver a chave do objeto c]
-obj busca_chave(int chave, lista l, int f_chave(obj c)) {
+obj busca_chave (int chave, lista l, int f_chave(obj c)) {
   no n = primeiro_no(l);
   while (n && f_chave(conteudo(n)) != chave)
     n = proximo(n);

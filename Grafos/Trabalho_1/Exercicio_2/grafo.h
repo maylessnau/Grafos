@@ -13,6 +13,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//defines para diferenciar os tipos de obj
+#define VERTICE 0
+#define ARESTA 1
+
 typedef struct t_vertice *vertice;
 typedef struct t_aresta *aresta;
 typedef struct t_grafo *grafo;
@@ -20,11 +24,15 @@ typedef struct t_grafo *grafo;
 typedef struct t_vertice {
 	int id;
 	lista fronteira;
+	//define se eh uma aresta ou um vertice
+	int tipo;
 } t_vertice;
 
 typedef struct t_aresta {
 	int id;
 	vertice u, v;
+	//define se eh uma aresta ou um vertice
+	int tipo;		
 } t_aresta;
 
 typedef struct t_grafo {

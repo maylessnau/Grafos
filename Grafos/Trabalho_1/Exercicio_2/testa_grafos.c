@@ -14,6 +14,7 @@ int main() {
   
   // cria grafo vazio
   grafo G = cria_grafo();
+  printf ("criou grafo!\n");
   
   // le n e adiciona vertices 1..n
   int n;
