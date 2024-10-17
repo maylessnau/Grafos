@@ -91,7 +91,7 @@ void destroi_grafo(grafo G) {
   no aux = primeiro_no (G->vertices);
   
   // destroi a lista de vertices (remove todos eles)
-  while (aux != NULL) {
+  while (aux) {
 	prox = proximo(aux);
 	remove_vertice (f_chave (conteudo(aux)), G);
 	aux = prox;	
@@ -136,7 +136,7 @@ void remove_vertice(int id, grafo G) {
  	no aux = primeiro_no (v->fronteira);
   
 	// destroi a fronteira
-	while (aux != NULL) {
+	while (aux) {
 	  prox = proximo(aux);
 	  remove_aresta (f_chave (conteudo(aux)),G);
 	  aux = prox;

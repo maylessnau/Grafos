@@ -77,18 +77,18 @@ grafo cria_grafo() {
 void destroi_grafo(grafo G) {
 
   // verifica se existem vertices validos
-  if (vazio (G->vertices)) {
+  if (vazio (vertices(G))) {
 	free (G->vertices);
-    G->vertices = NULL;
+    (G->vertices) = NULL;
     free (G->arestas);
-    G->arestas = NULL;
+    (G->arestas) = NULL;
     free (G);
 	G = NULL;
 	return;
   }
   
   no prox;
-  no aux = primeiro_no (G->vertices);
+  no aux = primeiro_no (vertices(G));
   
   // destroi a lista de vertices (remove todos eles)
   while (aux != NULL) {
@@ -100,7 +100,7 @@ void destroi_grafo(grafo G) {
   free (G->vertices);
   G->vertices = NULL;
   free (G->arestas);
-  G->arestas = NULL;
+  (G->arestas) = NULL;
 
   // destroi grafo
   free(G);
@@ -117,7 +117,7 @@ void adiciona_vertice(int id, grafo G) {
   v->id = id;
   v->fronteira = cria_lista();
   v->tipo = VERTICE;
-  empilha(v, G->vertices);
+  empilha(v, vertices(G));
 }
 
 // remove vertice com id <id> do grafo G e o destroi
@@ -125,15 +125,15 @@ void adiciona_vertice(int id, grafo G) {
 void remove_vertice(int id, grafo G) {
  
   vertice v;
-  v = (vertice) remove_chave (id, G->vertices, (int_f_obj) f_chave);
+  v = (vertice) remove_chave (id, vertices(G), (int_f_obj) f_chave);
 
   // se não encontrou o vertice
   if (!v) return;
 
   // verifica se existem arestas validas na fronteira
-  if (!(vazio (v->fronteira))) {
+  if (!(vazio (fronteira(v)))) {
 	no prox;
- 	no aux = primeiro_no (v->fronteira);
+ 	no aux = primeiro_no (fronteira(v));
   
 	// destroi a fronteira
 	while (aux != NULL) {
@@ -160,31 +160,31 @@ void adiciona_aresta(int id, int u_id, int v_id, grafo G) {
   a->id = id;
 
   //insere a aresta na fronteira do vertice u
-  vertice u = (vertice) busca_chave (u_id, G->vertices, (int_f_obj) f_chave);
+  vertice u = (vertice) busca_chave (u_id, vertices(G), (int_f_obj) f_chave);
   a->u = u;
-  empilha(a, u->fronteira);
+  empilha(a, fronteira(u));
 
   //insere a aresta na fronteira do vertice v
-  vertice v = (vertice) busca_chave (v_id, G->vertices, (int_f_obj) f_chave);
+  vertice v = (vertice) busca_chave (v_id, vertices(G), (int_f_obj) f_chave);
   a->v = v;
-  empilha(a, v->fronteira);
+  empilha(a, fronteira(v));
 
   a->tipo = ARESTA;
 
-  empilha(a, G->arestas);
+  empilha(a, arestas(G));
 }
 
 // remove aresta com id <id> do grafo G e a destroi
 void remove_aresta (int id, grafo G) {
  
   aresta a;
-  a = (aresta) remove_chave (id, G->arestas, (int_f_obj) f_chave);
+  a = (aresta) remove_chave (id, arestas(G), (int_f_obj) f_chave);
   if(!a) return;
  
   //remove a aresta da fronteira do vertice u
-  remove_chave (id, a->u->fronteira, (int_f_obj) f_chave);
+  remove_chave (id, fronteira(vertice_u(a)), (int_f_obj) f_chave);
   //remove a aresta da fronteira do vertice v
-  remove_chave (id, a->v->fronteira, (int_f_obj) f_chave);
+  remove_chave (id, fronteira(vertice_v(a)), (int_f_obj) f_chave);
 
   free (a);
   a = NULL;
@@ -204,7 +204,8 @@ int grau(vertice v) {
 // imprime o grafo G
 void imprime_grafo(grafo G) {
   printf("\nVertices: <id> - [grau]( <fronteira> )");
-  printf("\nVertices: ");
+  printf("\nVertices: \n");
+  printf(" ");
   imprime_lista(vertices(G), (void_f_obj) imprime_vertice);
   printf("\nArestas: <id>:{u,v}");
   printf("\nArestas: ");
@@ -216,7 +217,7 @@ void imprime_grafo(grafo G) {
 void imprime_vertice(vertice v) {
   printf("%d - [%d]( ", vertice_id(v), grau(v));
   imprime_lista(fronteira(v), (void_f_obj) imprime_aresta);
-  printf(")");
+  printf(")\n");
 }
 
 // imprime a aresta e

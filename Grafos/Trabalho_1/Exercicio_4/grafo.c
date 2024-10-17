@@ -16,11 +16,17 @@
 int vertice_id(vertice v) {
   return v->id;
 };
+int grau(vertice v) {
+  return v->grau;
+};
 lista fronteira(vertice v) {
   return v->fronteira;
 };
 int aresta_id(aresta e) {
   return e->id;
+};
+int aresta_peso(aresta e) {
+  return e->peso;
 };
 vertice vertice_u(aresta e) {
   return e->u;
@@ -91,7 +97,7 @@ void destroi_grafo(grafo G) {
   no aux = primeiro_no (G->vertices);
   
   // destroi a lista de vertices (remove todos eles)
-  while (aux != NULL) {
+  while (aux) {
 	prox = proximo(aux);
 	remove_vertice (f_chave (conteudo(aux)), G);
 	aux = prox;	
@@ -116,6 +122,7 @@ void adiciona_vertice(int id, grafo G) {
 
   v->id = id;
   v->fronteira = cria_lista();
+  v->grau = 0;
   v->tipo = VERTICE;
   empilha(v, G->vertices);
 }
@@ -136,7 +143,7 @@ void remove_vertice(int id, grafo G) {
  	no aux = primeiro_no (v->fronteira);
   
 	// destroi a fronteira
-	while (aux != NULL) {
+	while (aux) {
 	  prox = proximo(aux);
 	  remove_aresta (f_chave (conteudo(aux)),G);
 	  aux = prox;
@@ -147,6 +154,22 @@ void remove_vertice(int id, grafo G) {
 
   free(v);
   v = NULL;
+}
+
+// atualiza o peso das arestas na fronteira de v
+void atualiza_peso (vertice v) {
+
+	no prox;
+ 	no aux = primeiro_no (v->fronteira);
+	aresta e;
+  
+	// atualiza os pesos
+	while (aux) {
+	  prox = proximo(aux);
+	  e = (aresta)conteudo(aux);
+      e->peso = (grau(e->u)) + (grau(e->v));
+	  aux = prox;
+ 	}	
 }
 
 // cria aresta com id <id> incidente a vertices com
@@ -162,12 +185,25 @@ void adiciona_aresta(int id, int u_id, int v_id, grafo G) {
   //insere a aresta na fronteira do vertice u
   vertice u = (vertice) busca_chave (u_id, G->vertices, (int_f_obj) f_chave);
   a->u = u;
+  u->grau++;
   empilha(a, u->fronteira);
 
   //insere a aresta na fronteira do vertice v
   vertice v = (vertice) busca_chave (v_id, G->vertices, (int_f_obj) f_chave);
   a->v = v;
+  v->grau++;
   empilha(a, v->fronteira);
+
+  //atribui como peso a soma dos graus dos vértices
+  a->peso = (grau(a->u)) + (grau(a->v));
+  
+  //se houverem outras aresta já concetadas a esses vertices atualiza o peso
+  if (!(vazio(u->fronteira))) {	
+  	atualiza_peso(u);
+  }
+  if (!(vazio(v->fronteira))) {
+	atualiza_peso(v);
+  }
 
   a->tipo = ARESTA;
 
@@ -183,8 +219,14 @@ void remove_aresta (int id, grafo G) {
  
   //remove a aresta da fronteira do vertice u
   remove_chave (id, a->u->fronteira, (int_f_obj) f_chave);
+  a->u->grau--;
+
   //remove a aresta da fronteira do vertice v
   remove_chave (id, a->v->fronteira, (int_f_obj) f_chave);
+  a->v->grau--;
+
+  atualiza_peso(a->u);
+  atualiza_peso(a->v);
 
   free (a);
   a = NULL;
@@ -193,20 +235,12 @@ void remove_aresta (int id, grafo G) {
 //---------------------------------------------------------
 // funcoes para operacoes com o grafo pronto:
 
-// calcula e devolve o grau do vertice v
-int grau(vertice v) {
-  int d_v = 0;
-  for (no n = primeiro_no(fronteira(v)); n; n = proximo(n))
-    ++d_v;
-  return d_v;
-}
-
 // imprime o grafo G
 void imprime_grafo(grafo G) {
   printf("\nVertices: <id> - [grau]( <fronteira> )");
-  printf("\nVertices: ");
+  printf("\nVertices: \n");
   imprime_lista(vertices(G), (void_f_obj) imprime_vertice);
-  printf("\nArestas: <id>:{u,v}");
+  printf("\nArestas: <id>:{u,v} [Peso]");
   printf("\nArestas: ");
   imprime_lista(arestas(G), (void_f_obj) imprime_aresta);
   printf("\n");
@@ -216,12 +250,14 @@ void imprime_grafo(grafo G) {
 void imprime_vertice(vertice v) {
   printf("%d - [%d]( ", vertice_id(v), grau(v));
   imprime_lista(fronteira(v), (void_f_obj) imprime_aresta);
-  printf(")");
+  printf(")\n");
 }
 
 // imprime a aresta e
 void imprime_aresta(aresta e) {
   int u_id = vertice_id(vertice_u(e));
   int v_id = vertice_id(vertice_v(e));
-  printf("%d:{%d,%d}", aresta_id(e), u_id, v_id);
+  //imprime o peso também
+  int peso = aresta_peso(e);
+  printf("%d:{%d,%d} [%d]", aresta_id(e), u_id, v_id, peso);
 }
